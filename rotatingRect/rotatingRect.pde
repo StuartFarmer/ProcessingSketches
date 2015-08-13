@@ -66,12 +66,12 @@ class Item {
     noFill();
     stroke(255);
     if (mousePressed) {
-      println(abs(sqrt(pow(centerX-mouseX,2)+pow(centerY-mouseY,2))) || engaged);
-      if(abs(sqrt(pow(centerX-mouseX,2)+pow(centerY-mouseY,2)))<=24) {
-        centerX = mouseX;
-        centerY = mouseY;
-        engaged = true;
-      } 
+        if((abs(sqrt(pow(centerX-mouseX,2)+pow(centerY-mouseY,2)))<=24) || engaged) {
+          centerX = mouseX;
+          centerY = mouseY;
+          engaged = true;
+          stroke(255);
+        } 
     } else engaged = false;
     rect(centerX-(size/2), centerY-(size/2), size, size); 
   }
