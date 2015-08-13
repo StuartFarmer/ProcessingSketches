@@ -55,6 +55,7 @@ class Rectangle {
   
   void fade() {
     alpha--;
+    yPos++;
   }
   
   void display() {
