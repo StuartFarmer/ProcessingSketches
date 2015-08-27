@@ -1,32 +1,41 @@
+PVector speed;
+
 class Walker {
   
-  float x, y;
-  float tx, ty;
+  PVector location;
+  PVector noiseTimer;
   
   Walker() {
-    x = width/2;
-    y = height/2;
-    tx = 0;
-    ty = 10000;
+    location = new PVector(width/2, height/2);
+    noiseTimer = new PVector(0, 10000);
   }
   
   void step() {
-    x += map(noise(tx), 0, 1, -1, 1);
-    y += map(noise(ty), 0, 1, -1, 1);
+    location.x += map(noise(noiseTimer.x), 0, 1, -speed.x, speed.x);
+    location.y += map(noise(noiseTimer.y), 0, 1, -speed.y, speed.y);
     
-    tx += 0.01;
-    ty += 0.01;
+    noiseTimer.x += 0.01;
+    noiseTimer.y += 0.01;
+    
+    // Create boundaries
+    if (location.x >= width) location.x += -speed.x;
+    else if (location.x < 0) location.x += speed.x;
+    
+    if (location.y >= height) location.y += -speed.y;
+    else if (location.y < 0) location.y += speed.y;
     
   }
   
   void display() {
-    point(x, y);
+    ellipse(location.x, location.y, 24, 24);
   }
 }
 
 Walker w;
 
 void setup() {
+  
+  speed = new PVector(5, 5);
   size(500,500);
   background(255);
   w = new Walker();
