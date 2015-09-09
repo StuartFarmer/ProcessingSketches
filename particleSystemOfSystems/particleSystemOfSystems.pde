@@ -1,6 +1,3 @@
-import java.util.Iterator;
-import java.util.ArrayList;
-
 class Particle {
   PVector location;
   PVector velocity;
@@ -76,26 +73,65 @@ class Particle {
   }
 }
 
-int maxParticles = 25;
-ArrayList<Particle> particles;
+class ParticleSystem {
+  ArrayList<Particle> particles;
+  PVector origin;
+  
+  float startAngle = 0;
+  float angleVel = 0.1;
+  
+  float lifespan;
+  boolean kill;
+  
+  ParticleSystem(PVector location) {
+    origin = new PVector(location.x, location.y);
+    particles = new ArrayList<Particle>();
+    lifespan = 90;
+    kill = false;
+  }
+  
+  void addParticle() {
+    particles.add(new Particle(origin));
+  }
+  
+  void update() {
+    
+    if (!kill) {
+      addParticle();
+    }
+    
+    lifespan--;
+    
+    for (int i = 0; i < particles.size(); i++) {
+      Particle p = particles.get(i);
+      p.run();
+      if (p.isDead()) {
+        particles.remove(i);
+      }
+    }
+    
+    startAngle += 0.02;
+  }
+
+}
+
+ArrayList<ParticleSystem> systems;
 
 void setup() {
-  size(640, 480);
-  particles = new ArrayList<Particle>();
+  size(500, 500);
+  systems = new ArrayList<ParticleSystem>(); 
 }
 
 void draw() {
   background(255);
-  
-  particles.add(new Particle(new PVector(mouseX, mouseY)));
-  
-  for (int i = 0; i < particles.size(); i++) {
-    Particle p = particles.get(i);
-    p.run();
-    if (p.isDead()) {
-      particles.remove(i);
-    }
+  for (int i = 0; i < systems.size(); i++) {
+    ParticleSystem ps = systems.get(i);
+    ps.update();
+    if (ps.lifespan <= 0) ps.kill = true; // Check if the particle system is due to expire
+    if (ps.particles.size() == 0) systems.remove(i); // If the particles of an expired system are gone, remove the sytem
   }
-  
-  println(particles.size());
+}
+
+void mousePressed() {
+  systems.add(new ParticleSystem(new PVector(mouseX, mouseY)));
 }

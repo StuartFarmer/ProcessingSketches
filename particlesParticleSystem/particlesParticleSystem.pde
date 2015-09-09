@@ -1,6 +1,3 @@
-import java.util.Iterator;
-import java.util.ArrayList;
-
 class Particle {
   PVector location;
   PVector velocity;
@@ -76,26 +73,51 @@ class Particle {
   }
 }
 
-int maxParticles = 25;
-ArrayList<Particle> particles;
+class ParticleSystem {
+  ArrayList<Particle> particles;
+  PVector origin;
+  
+  float startAngle = 0;
+  float angleVel = 0.1;
+  
+  ParticleSystem(PVector location) {
+    origin = new PVector(location.x, location.y);
+    particles = new ArrayList<Particle>();
+  }
+  
+  void addParticle() {
+    particles.add(new Particle(origin));
+  }
+  
+  void update() {
+    
+    float angle = startAngle;
+    origin.y = map(sin(angle), -1, 1, 20, height-20);
+    origin.x = map(cos(angle), -1, 1, 20, width-20);
+    
+    for (int i = 0; i < particles.size(); i++) {
+      Particle p = particles.get(i);
+      p.run();
+      if (p.isDead()) {
+        particles.remove(i);
+      }
+    }
+    
+    startAngle += 0.02;
+  }
+}
+
+ParticleSystem ps;
 
 void setup() {
-  size(640, 480);
-  particles = new ArrayList<Particle>();
+  size(500, 500);
+  ps = new ParticleSystem(new PVector(width/2, height/2));
+  
 }
 
 void draw() {
   background(255);
   
-  particles.add(new Particle(new PVector(mouseX, mouseY)));
-  
-  for (int i = 0; i < particles.size(); i++) {
-    Particle p = particles.get(i);
-    p.run();
-    if (p.isDead()) {
-      particles.remove(i);
-    }
-  }
-  
-  println(particles.size());
+  ps.addParticle();
+  ps.update();
 }
