@@ -1,47 +1,48 @@
-PVector a;
-PVector b;
+class Angle {
+  PVector center;
+  PVector direction;
+  PVector arm;
+  
+  Angle() {
+    center = new PVector(width/2, height/2);
+    direction = new PVector(1, 0);
+    direction.mult(100);
+    arm = new PVector(0, 0);
+  }
+  
+  void display() {
+    pushMatrix();
+      stroke(0);
+      strokeWeight(1);
+      translate(center.x, center.y);
+      line(0, 0, direction.x, direction.y);
+      line(0, 0, arm.x, arm.y);
+    popMatrix();
+  }
+  
+  void update() {
+    PVector mouse = new PVector(mouseX, mouseY);
+    arm = PVector.sub(mouse, center);
+    arm.normalize();
+    arm.mult(100);
+    
+    float theta = PVector.angleBetween(arm, direction);
+    theta = degrees(theta);
+    println("theta: " + theta);
+  }
+}
 
-PFont f;
-
-float theta;
+Angle a;
 
 void setup() {
   size(500, 500);
   background(255);
-  newVector();
-  b = new PVector(1, 0);
-  b.mult(100);
-  b.add(width/2, height/2);
-  f = loadFont("Serif-48.vlw");
-  textFont(f, 24);
+
+  a = new Angle();
 }
 
 void draw() {
-  stroke(0);
   background(255);
-  newVector();
-  
-  // Draw lines
-  line(width/2, height/2, a.x, a.y);
-  line(width/2, height/2, b.x, b.y);
-  
-  // Calc angle
-  theta = PVector.angleBetween(a, b);
-  println("Theta:" + theta);
-  // Draw text
-  fill(0);
-  text("Angle Calculator", 10, 30);
-  text(theta, 10, height-20);
-}
-
-void keyPressed() {
-  background(255);
-  newVector();
-}
-
-void newVector() {
-  a = new PVector(map(mouseX, 0, width, -1, 1), map(mouseY, 0, height, -1, 1));
-  a.normalize();
-  a.mult(100);
-  a.add(new PVector(width/2, height/2));
+  a.update();
+  a.display();
 }
