@@ -15,7 +15,7 @@ class Vehicle {
     location = new PVector(x, y);
     size = 3.0;
     maxSpeed = 4;
-    maxSteer = 1;
+    maxSteer = 0.1;
   }
   
   void update() {
@@ -63,16 +63,25 @@ class Vehicle {
   
 }
 
+ArrayList <Vehicle> vehicles = new ArrayList<Vehicle>();
 Vehicle v;
 
 void setup() {
-  size(500, 500);
+  size(displayWidth, displayHeight);
   v = new Vehicle(width, height); 
+  vehicles.add(v);
 }
 
 void draw() {
   background(255);
-  v.seek(new PVector(mouseX, mouseY));
-  v.update();
-  v.display();
+  for (Vehicle veh : vehicles) {
+    veh.seek(new PVector(mouseX, mouseY));
+    veh.update();
+    veh.display();
+  } 
+}
+
+void mousePressed() {
+  Vehicle v = new Vehicle(mouseX, mouseY);
+  vehicles.add(v);
 }
