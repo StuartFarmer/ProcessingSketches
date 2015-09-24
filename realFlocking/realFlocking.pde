@@ -12,6 +12,10 @@ class Vehicle {
   float seekStrength = 0.5;
  
   float wanderTheta;
+  
+  float x;
+  float y;
+  float z;
  
   Vehicle(float x, float y) {
     acceleration = new PVector(0,0);
@@ -23,6 +27,10 @@ class Vehicle {
     maxforce = 0.1;
     
     wanderTheta = 0;
+    
+    x = random(100000);
+    y = random(100000);
+    z = random(100000);
 
   }
 
@@ -32,6 +40,9 @@ class Vehicle {
     location.add(velocity);
     acceleration.mult(0);
     checkEdges();
+    x++;
+    y++;
+    z++;
   }
 
   void applyForce(PVector force) {
@@ -91,6 +102,7 @@ class Vehicle {
         if (abs(theta) < 45) {
           PVector diff = PVector.sub(location, v.location);
           diff.normalize();
+          
           sum.add(diff);
           count++;
         }
@@ -196,9 +208,11 @@ class Vehicle {
     PVector align = align(vehicles);
     PVector attract = attract(vehicles);
     
-    seperate.mult(1.5);
-    align.mult(1);
-    attract.mult(1);
+    
+    
+    seperate.mult(random(-1, 1) * noise(x));
+    align.mult(random(0, 2) * noise(y));
+    attract.mult(random(0, 2) * noise(z));
     
     applyForce(seperate);
     applyForce(align);
