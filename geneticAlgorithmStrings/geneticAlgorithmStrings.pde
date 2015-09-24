@@ -3,83 +3,179 @@ class Population {
   DNA[] organisms;
   ArrayList<DNA> matingPool = new ArrayList<DNA>();
   
-  Population() {
-    organisms = new DNA[100];
+  DNA bestOrganism;
+  float averageFitness;
+  
+  int generations;
+  
+  Population(int size, float mutationRate, String target) {
+    organisms = new DNA[size];
+    for (int i = 0; i < organisms.length; i++) {
+      organisms[i] = new DNA(mutationRate, target);
+    }
+    bestOrganism = new DNA(mutationRate, target);
+    averageFitness = 0;
+    generations = 0;
   }
   
   void runFitness() {
+    // Run fitness on each organism, sort them, find the fittest organism, and determine the average fitness of the population
     for (int i = 0; i < organisms.length; i++) {
       organisms[i].fitness();
+      averageFitness += organisms[i].fitness;
     }
+    averageFitness /= organisms.length;
+    
+    sortOrganismsByFitness(organisms);
+    
+    bestOrganism = organisms[0];
   }
   
   void generateMatingPool() {
     for (int i = 0; i < organisms.length; i++) {
       // Rate each organism by fitness
-      int n = int(population[i].fitness * 100);
+      int n = int(organisms[i].fitness * 100);
       
       // Then add that number of organism copies to the pool, so that those with higher fitness have a higher chance of being selected
       for (int j = 0; j < n; j++) {
-        matingPool.add(population[i]);
+        matingPool.add(organisms[i]);
       }
     }
   }
   
   void reproduce() {
     // Select two random parents from the mating pools
-    int a = int(random(matingPool.size()));
-    int b = int(random(matingPool.size()));
-    DNA parentA = matingPool.get(a);
-    DNA parentB = matingPool.get(b);
-    
-    
+    for (int i = 0; i < organisms.length; i++) {
+      int a = int(random(matingPool.size()));
+      int b = int(random(matingPool.size()));
+      
+      DNA parentA = matingPool.get(a);
+      DNA parentB = matingPool.get(b);
+      
+      DNA child = parentA.crossover(parentB);
+      
+      child.mutate();
+      
+      organisms[i] = child;
+    }
+    generations++;
+  }
+  
+  void sortOrganismsByFitness(DNA[] orgs) {
+  boolean flag = true;
+  float tempFitness;
+  
+  while (flag) {
+    flag = false;
+    for (int i = 0; i < orgs.length-1; i++) {
+      if (orgs[i].fitness < orgs[i+1].fitness) {
+        tempFitness = orgs[i].fitness;
+        orgs[i] = orgs[i+1];
+        flag = true;
+      }
+    }
   }
 }
-
-String randomString(int length) {
-  String lowerAlpha = "abcdefghijklmnopqrstuvwxyz";
-  String upperAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  String fullAlpha = lowerAlpha + upperAlpha;
-  
-  String generatedString = "";
-  for (int i = 0; i < length; i++) {
-    generatedString += fullAlpha.charAt(int(random(fullAlpha.length()-1)));
-  }
-  return generatedString;
 }
 
 class DNA {
-  String genes;
+  char[] genes;
   String target;
   float fitness;
+  float mutationRate;
   
-  DNA() {
-    target = "To be or not to be";
-    genes = randomString(target.length());
+  DNA(float _mutationRate, String _target) {
+    target = _target;
+    genes = new char[target.length()];
+    mutationRate = _mutationRate;
+    for (int i = 0; i < genes.length; i++) {
+      genes[i] = (char)random(32, 128);
+    }
   }
   
   void fitness() {
     int score = 0;
-    for (int i = 0; i < genes.length(); i++) {
-      if (genes.charAt(i) == target.charAt(i)) {
+    for (int i = 0; i < genes.length; i++) {
+      if (genes[i] == target.charAt(i)) {
         score++;
       }
     }
     fitness = (float)score / target.length();
   }
+  
+  DNA crossover(DNA partner) {
+    DNA child = new DNA(mutationRate, target);
+    
+    int midpoint = int(random(genes.length));
+    
+    for (int i = 0; i < genes.length; i++) {
+      if (i > midpoint) child.genes[i] = genes[i];
+      else child.genes[i] = partner.genes[i];
+    }
+    
+    return child;
+  }
+  
+  void mutate() {
+    for (int i = 0; i < genes.length; i++) {
+      if (random(1) < mutationRate) {
+        genes[i] = (char)random(32, 128);
+      }
+    }
+  }
+  
+  String phrase() {
+    return new String(genes);
+  }
+  
 }
 
-DNA[] population = new DNA[100];
-
+Population population = new Population(1000, 0.02, "Smokes, boys. Let's go.");
+PFont font;
 void setup() {
-  for (int i = 0; i < population.length; i++) {
-    population[i] = new DNA();
-  }
+  size(1000, 500);
+  background(255);
+  font = loadFont("HelveticaNeue-48.vlw");
 }
 
 void draw() {
-  for (int i = 0; i < population.length; i++) {
-    population[i].fitness();
-    println(population[i].genes + " - " + population[i].fitness);
+  // evolve the population until optimized
+  if(population.bestOrganism.fitness < 1) {
+    background(255);
+    population.runFitness();
+    population.generateMatingPool();
+    population.reproduce();
+    drawBoard();
+  }
+}
+
+void drawBoard() {
+  fill(0);
+  textFont(font, 48);
+  
+  // Best organism
+  textAlign(CENTER);
+  text(population.bestOrganism.phrase(), 300, 250);
+  
+  textFont(font, 24);
+  // Best fitness
+  textAlign(LEFT);
+  text("Avg fit: " + population.averageFitness, 25, 475);
+  
+  // Average fitness
+  text("Best fit: " + population.bestOrganism.fitness, 300, 475);
+  
+  // Target phrase
+  textAlign(CENTER);
+  text(population.bestOrganism.target, 300, 25);
+  
+  text("Gen #:" + population.generations, 300, 50);
+  
+  // Top 20
+  textAlign(LEFT);
+  textFont(font, 16);
+  for (int i = 0; i < 10; i++) {
+    text("#" + (i+1) + ": " + population.organisms[i].phrase(), 600, i*50 + 25);
+    text("#" + (i+11) + ": " + population.organisms[i+10].phrase(), 800, i*50 + 25);
   }
 }
