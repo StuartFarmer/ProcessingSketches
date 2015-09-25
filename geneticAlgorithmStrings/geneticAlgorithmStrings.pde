@@ -130,7 +130,7 @@ class DNA {
   
 }
 
-Population population = new Population(1000, 0.02, "Smokes, boys. Let's go.");
+Population population = new Population(1000, 0.02, "Trevor, smokes. Let's go.");
 PFont font;
 void setup() {
   size(1000, 500);
@@ -146,6 +146,9 @@ void draw() {
     population.generateMatingPool();
     population.reproduce();
     drawBoard();
+    
+    // reset new text string to allow for another entry
+    newText = "";
   }
 }
 
@@ -175,7 +178,31 @@ void drawBoard() {
   textAlign(LEFT);
   textFont(font, 16);
   for (int i = 0; i < 10; i++) {
-    text("#" + (i+1) + ": " + population.organisms[i].phrase(), 600, i*50 + 25);
-    text("#" + (i+11) + ": " + population.organisms[i+10].phrase(), 800, i*50 + 25);
+    text(population.organisms[i].phrase(), 600, i*50 + 25);
+    text(population.organisms[i+10].phrase(), 800, i*50 + 25);
+  }
+}
+
+String newText = new String();
+void keyPressed() {
+  if(population.bestOrganism.fitness == 1) {
+    // Allow typing of new phrase
+    if (keyCode == ENTER) {
+      population = new Population(1000, 0.02, newText);
+    }
+    else if (keyCode == BACKSPACE) {
+      if (newText.length() > 0) newText = newText.substring(0, newText.length()-1);
+    }
+    else {
+      // Concatinate the new string (only if it is valid ASCII)
+      if (int(key) > 31 && int(key) < 129) {
+        newText += key;
+      }
+    }
+    // Display the text above
+    // Hacky way to do this...
+    background(255);
+    population.bestOrganism.target = newText;
+    drawBoard();
   }
 }
