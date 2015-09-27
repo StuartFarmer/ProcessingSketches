@@ -188,7 +188,7 @@ void keyPressed() {
   if(population.bestOrganism.fitness == 1) {
     // Allow typing of new phrase
     if (keyCode == ENTER) {
-      population = new Population(1000, 0.02, newText);
+      if (newText.length() > 1) population = new Population(1000, 0.02, newText);
     }
     else if (keyCode == BACKSPACE) {
       if (newText.length() > 0) newText = newText.substring(0, newText.length()-1);
