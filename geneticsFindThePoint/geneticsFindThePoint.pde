@@ -127,13 +127,15 @@ class DNA {
   PVector[] forces;
   float mutationRate;
   
+  float maxForce = 0.1;
+  
   DNA() {
     lifespan = 100;
     mutationRate = 0.02;
     forces = new PVector[lifespan];
     for (int i = 0; i < forces.length; i++) {
-      forces[i] = new PVector(random(-1, 1), random(-1, 1));
-      forces[i].normalize();
+     forces[i] = new PVector(random(-1, 1), random(-1, 1));
+     forces[i].normalize();
     }
   }
 }
