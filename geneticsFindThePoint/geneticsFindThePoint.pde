@@ -316,6 +316,7 @@ void drawBoard() {
   textAlign(LEFT);
   text("Generation #: " + population.generations, 20, 24);
   text("Quickest Completion in Frames: " + population.frameRecord, 20, 48);
+  text("Current Alive Organisms: " + population.organisms.size(), 20, 72);
 }
 
 void keyPressed() {
